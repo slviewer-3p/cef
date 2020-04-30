@@ -1,7 +1,6 @@
 # BuildParams
 #
-# Please refer to:
-#  https://wiki.secondlife.com/wiki/Automated_Build_System
+# Please refer to: https://wiki.secondlife.com/wiki/Automated_Build_System
 
 public_build = true
 

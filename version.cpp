@@ -1,7 +1,7 @@
 /**
  * @file   version.cpp
  * @author Callum Prentice via Nat Goodspeed
- * @date   2020-04-17
+ * @date   2020-04-30
  * @brief  Report library version number - C++ version
  *         For a library whose version number is tracked in a C++ header
  *         file, it's more robust to build a helper program to report it than
@@ -36,7 +36,6 @@ int main(int argc, char* argv[])
         cef_version.replace(pos, 1, good);
     }
 
-    std::cout << cef_version;
+    std::cout << cef_version; 
     std::cout << std::endl;
 }
-
