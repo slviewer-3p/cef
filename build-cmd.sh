@@ -51,7 +51,7 @@ case "$AUTOBUILD_PLATFORM" in
         # Download the raw CEF package - this will be be replaced
         # by code to build Chromium and CEF from source
         cef_bundle_url="cef_bundle_url_windows${AUTOBUILD_ADDRSIZE}"
-        curl "${!cef_bundle_url}" > "${cef_bundle_file}.tar.bz2"
+        curl "${!cef_bundle_url}" -o "${cef_bundle_file}.tar.bz2"
 
         # On my development machine 'tar xvjf cef_file.tar.bz' hangs
         # trying to decompress Debug/libcef.lib - workable solution 
