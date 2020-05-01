@@ -53,7 +53,12 @@ case "$AUTOBUILD_PLATFORM" in
         cef_bundle_url="cef_bundle_url_windows${AUTOBUILD_ADDRSIZE}"
         curl "${!cef_bundle_url}" -o "${cef_bundle_file}.tar.bz2"
 
-        if [ "$OSTYPE" = "cygwin" ] ; then
+        # Need a different way to swtich code paths based on if
+        # we are running locally because TeamCity also runs Cygwin
+        # of course - it's completely miserable to have to do this
+        os_ver=$(uname -s)
+        echo "os_ver is", $os_ver
+        if [[ "$os_ver" == *"NT-10.0"* ]]; then
             # On my development machine 'tar xvjf cef_file.tar.bz' hangs
             # trying to decompress Debug/libcef.lib - workable solution 
             # is to split the process into two stages
