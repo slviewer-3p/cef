@@ -74,7 +74,10 @@ case "$AUTOBUILD_PLATFORM" in
 
         # populate version_file (after header files are extracted 
         # to a well specified place that version.cpp can access)
+        # /EHsc is for 'warning C4530: C++ exception handler used, 
+        # but unwind semantics are not enabled. Specify /EHsc'
         cl \
+            /EHsc \
             /Fo"$(cygpath -w "$stage/version.obj")" \
             /Fe"$(cygpath -w "$stage/version.exe")" \
             /I "$(cygpath -w "$cef_bundle_dir/include/")"  \
