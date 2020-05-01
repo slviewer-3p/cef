@@ -55,10 +55,9 @@ case "$AUTOBUILD_PLATFORM" in
 
         # Need a different way to swtich code paths based on if
         # we are running locally because TeamCity also runs Cygwin
-        # of course - it's completely miserable to have to do this
-        os_ver=$(uname -s)
-        echo "os_ver is", $os_ver
-        if [[ "$os_ver" == *"NT-10.0"* ]]; then
+        # so we cannot use the built in $OSTYPE - it's completely 
+        # miserable to have to do this all over the place...
+        if [[ -z "${TEAMCITY_PROJECT_NAME}" ]]; then
             # On my development machine 'tar xvjf cef_file.tar.bz' hangs
             # trying to decompress Debug/libcef.lib - workable solution 
             # is to split the process into two stages
