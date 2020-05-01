@@ -53,15 +53,22 @@ case "$AUTOBUILD_PLATFORM" in
         cef_bundle_url="cef_bundle_url_windows${AUTOBUILD_ADDRSIZE}"
         curl "${!cef_bundle_url}" -o "${cef_bundle_file}.tar.bz2"
 
-        # On my development machine 'tar xvjf cef_file.tar.bz' hangs
-        # trying to decompress Debug/libcef.lib - workable solution 
-        # is to split the process into two stages
-        bzip2 -dv "${cef_bundle_file}.tar.bz2"
-        
-        # (we do not know the name of the folder inside the package 
-        # that is version specifc to we invoke the option to 
-        # strip it off and use the parent folder to contain everything)
-        tar xvfj "${cef_bundle_file}.tar" --strip-components=1
+        if [ "$OSTYPE" = "cygwin" ] ; then
+            # On my development machine 'tar xvjf cef_file.tar.bz' hangs
+            # trying to decompress Debug/libcef.lib - workable solution 
+            # is to split the process into two stages
+            bzip2 -dv "${cef_bundle_file}.tar.bz2"
+
+            # (we do not know the name of the folder inside the package 
+            # that is version specifc to we invoke the option to 
+            # strip it off and use the parent folder to contain everything)
+            tar xvfj "${cef_bundle_file}.tar" --strip-components=1
+        else
+            # unsurprisingly the same code doesn't work in TeamCity and 
+            # it fails with a bzip2 error so we have to resort to two
+            # a separate codepath for each.
+            tar xvfj "${cef_bundle_file}.tar.bz2" --strip-components=1
+        fi
 
         # Remove files from the raw CEF build that we do not use
         rm -rf "tests"
