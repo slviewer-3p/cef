@@ -55,9 +55,7 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>bin/*</string>
-            <string>include/*</string>
-            <string>lib/*</string>
+            <string>cef/*</string>
           </array>
           <key>name</key>
           <string>darwin64</string>
