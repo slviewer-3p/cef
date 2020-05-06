@@ -74,7 +74,7 @@ export PATH=$cef_build_dir/code/depot_tools:$PATH
 # Generally want media codecs enabled but switch them off above if that's not the case
 # Note: we use quotation marks around the GN_DEFINES variable otherwise the build scripts
 # ignore anything after the first space - maybe a bash limitation?
-if [ $USE_PROPRIETARY_CODECS = "1" ]; then
+if [ $use_proprietary_codecs = "1" ]; then
 export GN_DEFINES="is_official_build=true proprietary_codecs=true ffmpeg_branding=Chrome"
 else
 export GN_DEFINES="is_official_build=true"
@@ -100,15 +100,15 @@ cef_distrib_subdir="cef_binary_macosx"
 # (--client-distrib) also generates the distributable packages just like we used
 # to take from Spotify. Note too that unlike the Windows version, we always invoke
 # the 64bit command line parameter.
-# cd "$cef_build_dir/code/chromium_git"
-# python ../automate/automate-git.py \
-#     --download-dir="$cef_build_dir/code/chromium_git" \
-#     --depot-tools-dir="$cef_build_dir/code/depot_tools" \
-#     --branch="$cef_branch_number" \
-#     --checkout="$cef_commit_hash" \
-#     --client-distrib \
-#     --x64-build \
-#     --distrib-subdir="$cef_distrib_subdir" \
-#     "$debug_build_flag"
+cd "$cef_build_dir/code/chromium_git"
+python ../automate/automate-git.py \
+    --download-dir="$cef_build_dir/code/chromium_git" \
+    --depot-tools-dir="$cef_build_dir/code/depot_tools" \
+    --branch="$cef_branch_number" \
+    --checkout="$cef_commit_hash" \
+    --client-distrib \
+    --x64-build \
+    --distrib-subdir="$cef_distrib_subdir" \
+    "$debug_build_flag"
 
 echo "Build finished - look in $cef_build_dir/code/chromium_git/chromium/src/cef/binary_distrib/$cef_distrib_subdir for build products and $cef_build_dir/code/chromium_git/chromium/src/cef/binary_distrib/*.tar.bz2 for packages"
