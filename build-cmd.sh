@@ -88,12 +88,14 @@ case "$AUTOBUILD_PLATFORM" in
 
         # base directory structure
         mkdir -p "$cef_build_dir/code"
-        mkdir -p "$cef_build_dir/code/automate"
-        mkdir -p "$cef_build_dir/code/chromium_git"
 
         # Clone the GIT repo with the Chromium/CEF build tools
         cd "$cef_build_dir/code"
         git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+
+        # need to do this after we clone depot_tools otherwise git complains about non-empty 'code' dir
+        mkdir -p "$cef_build_dir/code/automate"
+        mkdir -p "$cef_build_dir/code/chromium_git"
 
         # Update the CEF build tools 
         cd "$cef_build_dir/code/depot_tools"
@@ -111,16 +113,15 @@ case "$AUTOBUILD_PLATFORM" in
 
         cd "$cef_build_dir/code/chromium_git"
 
-        export GN_ARGUMENTS="--ide=vs2017 --sln=cef --filters=//cef/*"
-        export GN_DEFINES="is_official_build=true proprietary_codecs=true ffmpeg_branding=Chrome"
-        export CEF_ARCHIVE_FORMAT=tar.bz2
+        set GN_ARGUMENTS=--ide=vs2017 --sln=cef --filters=//cef/*
+        set GN_DEFINES=is_official_build=true proprietary_codecs=true ffmpeg_branding=Chrome
+        set CEF_ARCHIVE_FORMAT=tar.bz2
 
         cef_distrib_subdir="cef_binary_windows"
 
         python ../automate/automate-git.py \
             --download-dir=$cef_build_dir/code/chromium_git \
             --depot-tools-dir=$cef_build_dir/code/depot_tools \
-            --no-build \
             --branch=$cef_branch_number \
             --checkout=$cef_commit_hash \
             --distrib-subdir=$cef_distrib_subdir \
