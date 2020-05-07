@@ -46,12 +46,6 @@ cef_commit_hash=e07275d
 
 
 
-
-
-
-
-
-
 # deprecate:@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # this name must match the one in the autobuild.xml manifest
 cef_bundle_dir="${stage}/cef"
@@ -83,60 +77,135 @@ build=${AUTOBUILD_BUILD_ID:=0}
 
 case "$AUTOBUILD_PLATFORM" in
     windows*)
-        # work in our own folder to keep the CEF and the autobuild
-        # files from interfering with each other
-        mkdir -p "${cef_bundle_dir}"
-        cd "${cef_bundle_dir}"
+        # the directory where CEF is built. The documentation suggests that on
+        # Windows at least, this shouldn't be in a subdirectory since the
+        # complex build process generates enormous path names. This means we
+        # have a different location per build platform type
+# TODO: this likely still has to live in the root dir
+# TODO: we should delete it on startup - it's huge - 120GB - and consumes most of the build host disk space
+        cef_build_dir="${stage}/cef_build"
+        cef_build_dir="/cef/$cef_branch_number"_"$AUTOBUILD_ADDRSIZE"
 
-        # Download the raw CEF package - this will be be replaced
-        # by code to build Chromium and CEF from source
-        cef_bundle_url="cef_bundle_url_windows${AUTOBUILD_ADDRSIZE}"
-        curl "${!cef_bundle_url}" -o "${cef_bundle_file}.tar.bz2"
+        # base directory structure
+        mkdir -p "$cef_build_dir/code"
+        mkdir -p "$cef_build_dir/code/automate"
+        mkdir -p "$cef_build_dir/code/chromium_git"
 
-        # Need a different way to swtich code paths based on if
-        # we are running locally because TeamCity also runs Cygwin
-        # so we cannot use the built in $OSTYPE - it's completely
-        # miserable to have to do this all over the place...
-        if [[ -z "${TEAMCITY_PROJECT_NAME}" ]]; then
-            # On my development machine 'tar xvjf cef_file.tar.bz' hangs
-            # trying to decompress Debug/libcef.lib - workable solution
-            # is to split the process into two stages
-            bzip2 -dv "${cef_bundle_file}.tar.bz2"
+        # Clone the GIT repo with the Chromium/CEF build tools
+        cd "$cef_build_dir/code"
+        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
-            # (we do not know the name of the folder inside the package
-            # that is version specifc to we invoke the option to
-            # strip it off and use the parent folder to contain everything)
-            tar xvfj "${cef_bundle_file}.tar" --strip-components=1
-        else
-            # unsurprisingly the same code doesn't work in TeamCity and
-            # it fails with a bzip2 error so we have to resort to two
-            # a separate codepath for each.
-            tar xvfj "${cef_bundle_file}.tar.bz2" --strip-components=1
-        fi
+        # Update the CEF build tools 
+        cd "$cef_build_dir/code/depot_tools"
+        chmod u+x update_depot_tools.bat 
+        ./update_depot_tools.bat
+
+        cd "$cef_build_dir/code"
+
+        export PATH="$(cygpath --unix "$cef_build_dir/code/depot_tools")":$PATH
+
+        tmp_cef=tmp_cef_git
+        git clone --depth 1 https://bitbucket.org/chromiumembedded/cef "$tmp_cef"
+        cp "$tmp_cef/tools/automate/automate-git.py" "$cef_build_dir/code/automate/automate-git.py"
+        rm -rf "$tmp_cef"
+
+        cd "$cef_build_dir/code/chromium_git"
+
+        export GN_ARGUMENTS="--ide=vs2017 --sln=cef --filters=//cef/*"
+        export GN_DEFINES="is_official_build=true proprietary_codecs=true ffmpeg_branding=Chrome"
+        export CEF_ARCHIVE_FORMAT=tar.bz2
+
+        cef_distrib_subdir="cef_binary_windows"
+
+        python ../automate/automate-git.py \
+            --download-dir=$cef_build_dir/code/chromium_git \
+            --depot-tools-dir=$cef_build_dir/code/depot_tools \
+            --no-build \
+            --branch=$cef_branch_number \
+            --checkout=$cef_commit_hash \
+            --distrib-subdir=$cef_distrib_subdir \
+            --client-distrib \
+            --force-clean \
+            --x64-build
+
+        # copy over the bits of the build we need to package
+        cp -R "$cef_build_dir/code/chromium_git/chromium/src/cef/binary_distrib/$cef_distrib_subdir/" "$cef_stage_dir/"
+
+        # return to the directory above where we built CEF
+        cd "${cef_stage_dir}"
 
         # Remove files from the raw CEF build that we do not use
         rm -rf "tests"
-        rm "Debug/cef_sandbox.lib"
-        rm "Release/cef_sandbox.lib"
+        rm "Debug/cef_sandbox.a"
+        rm "Release/cef_sandbox.a"
 
         # licence file
         mkdir -p "${stage}/LICENSES"
-        cp "${cef_bundle_dir}/LICENSE.txt" "$stage/LICENSES/cef.txt"
+        cp "${cef_stage_dir}/LICENSE.txt" "$stage/LICENSES/cef.txt"
 
-        # populate version_file (after header files are extracted
-        # to a well specified place that version.cpp can access)
-        # /EHsc is for 'warning C4530: C++ exception handler used,
-        # but unwind semantics are not enabled. Specify /EHsc'
-        cl \
-            /EHsc \
-            /Fo"$(cygpath -w "$stage/version.obj")" \
-            /Fe"$(cygpath -w "$stage/version.exe")" \
-            /I "$(cygpath -w "$cef_bundle_dir/include/")"  \
-            /I "$(cygpath -w "$cef_bundle_dir/")"  \
-            /D "AUTOBUILD_BUILD=${build}" \
-            "$(cygpath -w "$top/version.cpp")"
-        "$stage/version.exe" > "$stage/VERSION.txt"
-        rm "$stage"/version.{obj,exe}
+        # write version using original CEF package includes
+        g++ \
+            -I "$cef_stage_dir/include" \
+            -I "$cef_stage_dir/" \
+            -o "$stage/version" \
+            "$top/version.cpp"
+        "$stage/version" > "$stage/version.txt"
+
+
+        # # work in our own folder to keep the CEF and the autobuild
+        # # files from interfering with each other
+        # mkdir -p "${cef_bundle_dir}"
+        # cd "${cef_bundle_dir}"
+
+        # # Download the raw CEF package - this will be be replaced
+        # # by code to build Chromium and CEF from source
+        # cef_bundle_url="cef_bundle_url_windows${AUTOBUILD_ADDRSIZE}"
+        # curl "${!cef_bundle_url}" -o "${cef_bundle_file}.tar.bz2"
+
+        # # Need a different way to swtich code paths based on if
+        # # we are running locally because TeamCity also runs Cygwin
+        # # so we cannot use the built in $OSTYPE - it's completely
+        # # miserable to have to do this all over the place...
+        # if [[ -z "$TEAMCITY_PROJECT_NAME" ]]; then
+        #     # On my development machine 'tar xvjf cef_file.tar.bz' hangs
+        #     # trying to decompress Debug/libcef.lib - workable solution
+        #     # is to split the process into two stages
+        #     bzip2 -dv "${cef_bundle_file}.tar.bz2"
+
+        #     # (we do not know the name of the folder inside the package
+        #     # that is version specifc to we invoke the option to
+        #     # strip it off and use the parent folder to contain everything)
+        #     tar xvfj "${cef_bundle_file}.tar" --strip-components=1
+        # else
+        #     # unsurprisingly the same code doesn't work in TeamCity and
+        #     # it fails with a bzip2 error so we have to resort to two
+        #     # a separate codepath for each.
+        #     tar xvfj "${cef_bundle_file}.tar.bz2" --strip-components=1
+        # # fi
+
+        # # Remove files from the raw CEF build that we do not use
+        # rm -rf "tests"
+        # rm "Debug/cef_sandbox.lib"
+        # rm "Release/cef_sandbox.lib"
+
+        # # licence file
+        # mkdir -p "${stage}/LICENSES"
+        # cp "${cef_bundle_dir}/LICENSE.txt" "$stage/LICENSES/cef.txt"
+
+        # # populate version_file (after header files are extracted
+        # # to a well specified place that version.cpp can access)
+        # # /EHsc is for 'warning C4530: C++ exception handler used,
+        # # but unwind semantics are not enabled. Specify /EHsc'
+        # cl \
+        #     /EHsc \
+        #     /Fo"$(cygpath -w "$stage/version.obj")" \
+        #     /Fe"$(cygpath -w "$stage/version.exe")" \
+        #     /I "$(cygpath -w "$cef_bundle_dir/include/")"  \
+        #     /I "$(cygpath -w "$cef_bundle_dir/")"  \
+        #     /D "AUTOBUILD_BUILD=${build}" \
+        #     "$(cygpath -w "$top/version.cpp")"
+        # "$stage/version.exe" > "$stage/VERSION.txt"
+        # rm "$stage"/version.{obj,exe}
     ;;
 
     darwin64)
