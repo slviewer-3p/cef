@@ -157,6 +157,12 @@
 @time /t >> %ROOT_CODE_DIRECTORY%\build_details
 @echo. >> %ROOT_CODE_DIRECTORY%\build_details
 
+@rem This needs to be set for vs_toolchain.py to find the right 
+@rem directories to copy the system DLLs from. It is set in the 
+@rem Control Panel and works for local builds but TeamCity 
+@rem appears to ignore or not that so we try setting here. 
+@set WINDOWSSDKDIR="C:\Program Files (x86)\Windows Kits\10"
+
 @rem The main build script that does all the work. The CEF build wiki pages 
 @rem list some other commands [ninja...] but those are only required if
 @rem you are editing source and don't want to make a full build each time
