@@ -163,6 +163,12 @@
 @rem appears to ignore or not that so we try setting here. 
 @set WINDOWSSDKDIR="C:\Program Files (x86)\Windows Kits\10"
 
+@rem Trying to diagnose why this batch file [rather, a CEF
+@rem script from a script from a script] fails - maybe something
+@rem missing from the environment that this batch file inherits
+set
+set > cefenv.txt
+
 @rem The main build script that does all the work. The CEF build wiki pages 
 @rem list some other commands [ninja...] but those are only required if
 @rem you are editing source and don't want to make a full build each time
