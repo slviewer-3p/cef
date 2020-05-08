@@ -42,7 +42,8 @@ cef_branch_number=4044
 # commit hash the looks sensible - often something like "bumped CEF/Chromium
 # to version x.xx.xx"
 # E.G. for branch number 4044, e07275d is a valid commit hash
-cef_commit_hash=e07275d
+#cef_commit_hash=e07275d
+cef_commit_hash=b9282cc
 
 # Turn on the proprietary codec support (the main reason for building from source vs using
 # the Spotify open source builds here http://opensource.spotify.com/cefbuilds/index.html)
