@@ -161,7 +161,7 @@
 @rem directories to copy the system DLLs from. It is set in the 
 @rem Control Panel and works for local builds but TeamCity 
 @rem appears to ignore or not that so we try setting here. 
-@set WINDOWSSDKDIR="C:\Program Files (x86)\Windows Kits\10"
+@set WINDOWSSDKDIR=C:\Program Files (x86)\Windows Kits\10
 
 @rem Trying to diagnose why this batch file [rather, a CEF
 @rem script from a script from a script] fails - maybe something
