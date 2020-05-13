@@ -163,11 +163,19 @@
 @rem appears to ignore or not that so we try setting here. 
 @set WINDOWSSDKDIR=C:\Program Files (x86)\Windows Kits\10
 
+
+@rem the msvs_env.bat script that is part of the CEF build looks for
+@rem the vc*.bat batch files when it builds the CEF sandbox. This is
+@rem not being set or being set wrongly and the vcvars64.bat file is
+@rem not executaed which means the lib.exe call later on fails.
+@rem I don't know why this is not set so this is speculative.
+@set CEF_VCVARS=vcvars64.bat
+
 @rem Trying to diagnose why this batch file [rather, a CEF
 @rem script from a script from a script] fails - maybe something
 @rem missing from the environment that this batch file inherits
 set
-set > cefenv.txt
+set > \cefenv.txt
 
 @rem The main build script that does all the work. The CEF build wiki pages 
 @rem list some other commands [ninja...] but those are only required if
