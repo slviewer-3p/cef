@@ -126,6 +126,8 @@
 @set GN_DEFINES=is_official_build=true
 @if "%PROPRIETARY_CODEC%"=="1" (set GN_DEFINES=is_official_build=true proprietary_codecs=true ffmpeg_branding=Chrome)
 
+set GYP_MSVS_VERSION=2017
+
 @rem specifiy that the final build result is a .tar.bz2 archive vs zip
 @set CEF_ARCHIVE_FORMAT=tar.bz2
 
