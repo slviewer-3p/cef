@@ -171,6 +171,11 @@
 @rem I don't know why this is not set so this is speculative.
 @set CEF_VCVARS=vcvars64.bat
 
+@rem Turn on debugging that is triggered when opening vsvars64.bat
+@rem It reports a problem in the build log but isn't specific so
+@rem maybe this will tell us what is going on.
+set VSCMD_DEBUG=2
+
 @rem Trying to diagnose why this batch file [rather, a CEF
 @rem script from a script from a script] fails - maybe something
 @rem missing from the environment that this batch file inherits
