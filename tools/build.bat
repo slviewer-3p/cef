@@ -178,6 +178,8 @@ set GYP_MSVS_VERSION=2017
 @rem maybe this will tell us what is going on.
 set VSCMD_DEBUG=2
 
+SET VSINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\
+
 @rem Trying to diagnose why this batch file [rather, a CEF
 @rem script from a script from a script] fails - maybe something
 @rem missing from the environment that this batch file inherits
