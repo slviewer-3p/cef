@@ -97,7 +97,8 @@ case "$AUTOBUILD_PLATFORM" in
                     $cef_distrib_subdir
 
         # copy over the bits of the build we need to package
-        cp -R "$cef_build_dir/code/chromium_git/chromium/src/cef/binary_distrib/$cef_distrib_subdir/" "$cef_stage_dir/"
+        mkdir -p "$cef_stage_dir/"
+        cp -R "$cef_build_dir/chromium_git/chromium/src/cef/binary_distrib/$cef_distrib_subdir/" "$cef_stage_dir/"
 
         # return to the directory above where we built CEF
         cd "${cef_stage_dir}"
