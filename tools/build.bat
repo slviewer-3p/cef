@@ -1,9 +1,10 @@
 @rem Chromium/CEF build script
 @rem 
-@rem Copyright 2019, Linden Research, Inc.
+@rem Copyright 2020, Linden Research, Inc.
+@rem Callum Prentice - callum@lindenlab.com
 @rem 
 @rem Permission is hereby granted, free of charge, to any person obtaining a copy
-@rem of this software and associated documentation files (the "Software"), to deal
+@rem of this software and associated documentation files [the "Software"], to deal
 @rem in the Software without restriction, including without limitation the rights
 @rem to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 @rem copies of the Software, and to permit persons to whom the Software is
@@ -158,32 +159,6 @@ set GYP_MSVS_VERSION=2017
 @echo About to run automate-git.py: >> %ROOT_CODE_DIRECTORY%\build_details
 @time /t >> %ROOT_CODE_DIRECTORY%\build_details
 @echo. >> %ROOT_CODE_DIRECTORY%\build_details
-
-@rem @rem This needs to be set for vs_toolchain.py to find the right 
-@rem @rem directories to copy the system DLLs from. It is set in the 
-@rem @rem Control Panel and works for local builds but TeamCity 
-@rem @rem appears to ignore or not that so we try setting here. 
-@rem @set WINDOWSSDKDIR=C:\Program Files (x86)\Windows Kits\10
-
-@rem @rem the msvs_env.bat script that is part of the CEF build looks for
-@rem @rem the vc*.bat batch files when it builds the CEF sandbox. This is
-@rem @rem not being set or being set wrongly and the vcvars64.bat file is
-@rem @rem not executaed which means the lib.exe call later on fails.
-@rem @rem I don't know why this is not set so this is speculative.
-@rem @set CEF_VCVARS=vcvars64.bat
-
-@rem @rem Turn on debugging that is triggered when opening vsvars64.bat
-@rem @rem It reports a problem in the build log but isn't specific so
-@rem @rem maybe this will tell us what is going on.
-@rem set VSCMD_DEBUG=2
-
-@rem SET VSINSTALLDIR=C:\Program Files (x86)\Microsoft Visual Studio\2017\Professional\
-
-@rem @rem Trying to diagnose why this batch file [rather, a CEF
-@rem @rem script from a script from a script] fails - maybe something
-@rem @rem missing from the environment that this batch file inherits
-@rem set
-@rem set > \cefenv.txt
 
 @rem The main build script that does all the work. The CEF build wiki pages 
 @rem list some other commands [ninja...] but those are only required if
