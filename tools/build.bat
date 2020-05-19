@@ -86,13 +86,22 @@
 @time /t >> %ROOT_CODE_DIRECTORY%\build_details
 @echo. >> %ROOT_CODE_DIRECTORY%\build_details
 
-@rem grab a recent version of the depot tools using built in curl [.exe extension is important]
-@powershell.exe -NoP -NonI -Command "curl.exe -O https://storage.googleapis.com/chrome-infra/depot_tools.zip"
+@rem grab a recent version of the depot tools. Optionally use curl as part of Cygwin 
+@rem if we are *NOT* in a Windows 10 environment - otherwise, assume the relevant
+@rem Powershell function is present - we used to use Powershell curl.exe but there
+@rem were mysterious failures in TeamCity so we adopted this new approach
+@ver | findstr "10.0" > nul
+@if errorlevel = 1 (
+    @curl.exe -O https://storage.googleapis.com/chrome-infra/depot_tools.zip
+) else (
+    @powershell.exe -NoP -NonI -Command "curl.exe -O https://storage.googleapis.com/chrome-infra/depot_tools.zip"
+
+)
 
 @rem uncompress the zip file - optionally use unzip as part of Cygwin if we are *NOT* in a
 @rem Windows 10 environment - otherwise, assume the relevant Powershell function is present
 @rem and use it
-@ver | find "10.0" > nul
+@ver | findstr "10.0" > nul
 @if errorlevel = 1 (
     @unzip depot_tools.zip -d depot_tools 
 ) else (
