@@ -33,7 +33,7 @@ cef_stage_dir="${stage}/cef"
 # https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding.md#markdown-header-release-branches
 # as can this one: https://www.chromium.org/developers/calendar
 # E.G. Branch 4044 represents Chromium/CEF 81.x
-cef_branch_number=4044
+cef_branch_number=${CEF_BRANCH:-4044}
 
 # The commit hash in the branch we want to
 # check out from. One way to determine the hash to use is to look at the commits
@@ -48,7 +48,23 @@ cef_commit_hash=b223419
 # Turning this on for builds will allow the resulting browser to render media URLs for
 # MPEG4 and H264 directly along with providing transport controls. Examples of this are
 # Twitch and YouTube live streams.
-use_proprietary_codecs=1
+use_proprietary_codecs=${PROPRIETARY_CODECS:-1}
+
+# Build debug CEF. Switch this off by specificing the env. var BUILD_DEBUG=0
+# This safes a considerate amount of time. 
+# Linux only at this time.
+build_debug=${DEBUG_BUILD:-1}
+
+# Build client distrib or ust minimal one (no cefclient).
+# Linux only at this time
+build_client_distrib=${CLIENT_DISTRIB:-0}
+
+# Allow to set symbol level, default is 1 to get at least something sensible from call stacks.
+# From https://www.chromium.org/developers/gn-build-configuration
+# The symbol_level setting varies from 0 (no symbols or minimal symbols) to 2 (full symbols). Lower levels make debugging almost impossible, but the build will be much faster.
+# It can be useful in some cases where you just want a build ASAP (many build bots do this).
+# Linux only at this time
+symbol_level=${SYMBOL_LEVEL:-1}
 
 # Load autobuild provided shell functions and variables
 source_environment_tempfile="$stage/source_environment.sh"
@@ -208,7 +224,67 @@ case "$AUTOBUILD_PLATFORM" in
         "$stage/version" > "$stage/version.txt"
     ;;
 
-    linux*)
-        echo "This project is not currently supported for $AUTOBUILD_PLATFORM" 1>&2 ; exit 1
+    linux64)
+        mkdir -p mkdir cef/{automate,chromium_git}
+        test -f cef/automate/automate-git.py || curl https://bitbucket.org/chromiumembedded/cef/raw/master/tools/automate/automate-git.py >cef/automate/automate-git.py
+
+        if [ ! -d cef/depot_tools ]
+        then
+            pushd cef
+            git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+            popd
+        fi
+
+        cd cef/chromium_git
+        export PATH=`pwd`/cef/depot_tools:$PATH
+        export GN_DEFINES="is_official_build=true use_sysroot=true use_allocator=none symbol_level=${symbol_level} is_cfi=false use_thin_lto=false"
+        export GN_DEFINES="${GN_DEFINES} ffmpeg_branding=Chrome use_gtk=false use_system_libdrm=false use_system_minigbm=false remove_webcore_debug_symbols=true"
+
+        if [ $use_proprietary_codecs -eq 1 ]
+        then
+            export GN_DEFINES="${GN_DEFINES} proprietary_codecs=true"
+        fi
+
+        export CEF_ARCHIVE_FORMAT=tar.bz2
+
+        no_debug_build=""
+        if [ ${build_debug} -eq 0 ]
+        then
+            no_debug_build="--no-debug-build"
+        fi
+
+        build_distrib="--minimal-distrib --minimal-distrib-only"
+        build_target="--build-target=libcef"
+
+        if [ ${build_client_distrib} -eq 1 ]
+        then
+            build_distrib="--client-distrib"
+            build_target="--build-target=cefsimple libcef"
+        fi
+
+        cef_distrib_subdir="cef_binary_linux-$AUTOBUILD_ADDRSIZE"
+        python ../automate/automate-git.py --download-dir=`pwd` --depot-tools-dir=${top}/depot_tools --branch=${cef_branch_number} --fast-update --force-build --x64-build \
+            --no-debug-tests --no-release-tests --no-distrib-docs ${build_distrib}  ${no_debug_build} ${build_target} --distrib-subdir="${cef_distrib_subdir}"
+
+        if [ ${build_client_distrib} -eq 1 ]
+        then
+            cp -R "chromium/src/cef/binary_distrib/${cef_distrib_subdir}/" "${cef_stage_dir}/"
+        else
+            cp -R "chromium/src/cef/binary_distrib/${cef_distrib_subdir}_minimal/" "${cef_stage_dir}/"
+            rm -rf "${cef_stage_dir}/tests"
+        fi
+
+        # return to the directory above where we built CEF
+        cd "${cef_stage_dir}"
+
+        # licence file
+        mkdir -p "${stage}/LICENSES"
+        cp "${cef_stage_dir}/LICENSE.txt" "$stage/LICENSES/cef.txt"
+
+        VERSION_HEADER_FILE="${cef_stage_dir}/include/cef_version.h"
+        echo $VERSION_HEADER_FILE
+
+        version=$(gawk '/\yCEF_VERSION\y/{ gsub( "+", "_", $3); gsub( "\"", "", $3); print $3 }' ${VERSION_HEADER_FILE})
+        echo "${version}.${build}" > "${stage}/VERSION.txt"
     ;;
 esac

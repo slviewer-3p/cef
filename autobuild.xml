@@ -76,9 +76,7 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>include/*</string>
-            <string>lib/*</string>
-            <string>resources/*</string>
+            <string>cef/*</string>
           </array>
           <key>name</key>
           <string>linux</string>
