@@ -274,6 +274,11 @@ case "$AUTOBUILD_PLATFORM" in
             rm -rf "${cef_stage_dir}/tests"
         fi
 
+        test -f "${cef_stage_dir}/Release/libminigbm.so" || cp chromium/src/out/Release_GN_x64/libminigbm.so "${cef_stage_dir}/Release/"
+        if [ ${build_debug} -ne 0 ]
+        then
+            test -f "${cef_stage_dir}/Debug/libminigbm.so" || cp chromium/src/out/Debug_GN_x64/libminigbm.so "${cef_stage_dir}/Debug/"
+        fi
         # return to the directory above where we built CEF
         cd "${cef_stage_dir}"
 
