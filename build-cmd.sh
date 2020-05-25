@@ -269,6 +269,7 @@ case "$AUTOBUILD_PLATFORM" in
         if [ ${build_client_distrib} -eq 1 ]
         then
             cp -R "chromium/src/cef/binary_distrib/${cef_distrib_subdir}/" "${cef_stage_dir}/"
+            rm -rf "${cef_stage_dir}/tests"
         else
             cp -R "chromium/src/cef/binary_distrib/${cef_distrib_subdir}_minimal/" "${cef_stage_dir}/"
             rm -rf "${cef_stage_dir}/tests"
@@ -277,7 +278,7 @@ case "$AUTOBUILD_PLATFORM" in
         test -f "${cef_stage_dir}/Release/libminigbm.so" || cp chromium/src/out/Release_GN_x64/libminigbm.so "${cef_stage_dir}/Release/"
         if [ ${build_debug} -ne 0 ]
         then
-            test -f "${cef_stage_dir}/Debug/libminigbm.so" || cp chromium/src/out/Debug_GN_x64/libminigbm.so "${cef_stage_dir}/Debug/"
+            test -d "${cef_stage_dir}/Debug/" && ( test -f "${cef_stage_dir}/Debug/libminigbm.so" || cp chromium/src/out/Debug_GN_x64/libminigbm.so "${cef_stage_dir}/Debug/" )
         fi
         # return to the directory above where we built CEF
         cd "${cef_stage_dir}"
