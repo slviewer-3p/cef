@@ -39,9 +39,9 @@ cef_branch_number=4389
 # check out from. One way to determine the hash to use is to look at the commits
 # for the branch you are building - for example:
 # https://bitbucket.org/chromiumembedded/cef/commits/branch/4389 and pick the
-# commit hash the looks sensible - often something like "bumped CEF/Chromium
-# to version x.xx.xx"
-cef_commit_hash=e528bdb
+# commit hash the looks sensible - often something like "Update to Chromium
+# version xx.x.xxxx.xx" - this hash represents verion 89.0.4389.90
+cef_commit_hash=2b76680
 
 # Turn on the proprietary codec support (the main reason for building from source vs using
 # the Spotify open source builds here http://opensource.spotify.com/cefbuilds/index.html)
