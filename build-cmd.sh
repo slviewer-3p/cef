@@ -32,8 +32,8 @@ cef_stage_dir="${stage}/cef"
 # can make it difficult to find the branch number to use. This page can help:
 # https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding.md#markdown-header-release-branches
 # as can this one: https://www.chromium.org/developers/calendar
-# E.G. Branch 4044 represents Chromium/CEF 81.x
-cef_branch_number=${CEF_BRANCH:-4044}
+# E.G. Branch 4044 represents Chromium/CEF 81.x, 4389 is Chromium 89.x
+cef_branch_number=${CEF_BRANCH:-4389}
 
 # The commit hash in the branch we want to
 # check out from. One way to determine the hash to use is to look at the commits
@@ -41,7 +41,7 @@ cef_branch_number=${CEF_BRANCH:-4044}
 # https://bitbucket.org/chromiumembedded/cef/commits/branch/3987 and pick the
 # commit hash the looks sensible - often something like "bumped CEF/Chromium
 # to version x.xx.xx"
-cef_commit_hash=b223419
+cef_commit_hash=e528bdb
 
 # Turn on the proprietary codec support (the main reason for building from source vs using
 # the Spotify open source builds here http://opensource.spotify.com/cefbuilds/index.html)
@@ -239,6 +239,9 @@ case "$AUTOBUILD_PLATFORM" in
         export PATH=`pwd`/cef/depot_tools:$PATH
         export GN_DEFINES="is_official_build=true use_sysroot=true use_allocator=none symbol_level=${symbol_level} is_cfi=false use_thin_lto=false"
         export GN_DEFINES="${GN_DEFINES} ffmpeg_branding=Chrome use_gtk=false use_system_libdrm=false use_system_minigbm=false remove_webcore_debug_symbols=true"
+        # in case of getting problems wiwth the ozone layer, it can be disabled like this
+        export GN_DEFINES_="${GN_DEFINES} use_ozone=false"
+        export GN_DEFINES_="${GN_DEFINES} ozone_platform_wayland=false ozone_platform_x11=true"
 
         if [ $use_proprietary_codecs -eq 1 ]
         then
@@ -263,7 +266,7 @@ case "$AUTOBUILD_PLATFORM" in
         fi
 
         cef_distrib_subdir="cef_binary_linux-$AUTOBUILD_ADDRSIZE"
-        python ../automate/automate-git.py --download-dir=`pwd` --depot-tools-dir=${top}/depot_tools --branch=${cef_branch_number} --fast-update --force-build --x64-build \
+        python ../automate/automate-git.py --download-dir=`pwd` --depot-tools-dir=${top}/depot_tools --branch=${cef_branch_number} --checkout="$cef_commit_hash" --force-build --x64-build \
             --no-debug-tests --no-release-tests --no-distrib-docs ${build_distrib}  ${no_debug_build} ${build_target} --distrib-subdir="${cef_distrib_subdir}"
 
         if [ ${build_client_distrib} -eq 1 ]
