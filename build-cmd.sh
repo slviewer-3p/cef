@@ -38,10 +38,10 @@ cef_branch_number=4472
 # The commit hash in the branch we want to
 # check out from. One way to determine the hash to use is to look at the commits
 # for the branch you are building - for example:
-# https://bitbucket.org/chromiumembedded/cef/commits/branch/4389 and pick the
+# https://bitbucket.org/chromiumembedded/cef/commits/branch/4472 and pick the
 # commit hash the looks sensible - often something like "Update to Chromium
-# version xx.x.xxxx.xx" - this hash represents verion 91.0.4472.101
-cef_commit_hash=cf0c26a
+# version xx.x.xxxx.xx" - this hash represents verion 91.0.4472.114
+cef_commit_hash=9dd45fe
 
 # Turn on the proprietary codec support (the main reason for building from source vs using
 # the Spotify open source builds here http://opensource.spotify.com/cefbuilds/index.html)

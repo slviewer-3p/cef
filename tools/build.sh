@@ -27,7 +27,7 @@ cef_branch_number=$1
 # https://bitbucket.org/chromiumembedded/cef/commits/branch/3987 and pick the
 # commit hash the looks sensible - often something like "bumped CEF/Chromium
 # to version x.xx.xx"
-# E.G. for branch number 4472, cf0c26a is a valid commit hash for Chromuim v91
+# E.G. branch 4472, commit 9dd45fe defines CEF version 91.0.4472.114
 cef_commit_hash=$2
 
 # The third command line parameter is the directory you want to use to build
