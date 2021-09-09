@@ -18,7 +18,7 @@ fi
 # can make it difficult to find the branch number to use. This page can help:
 # https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding.md#markdown-header-release-branches
 # as can this one: https://www.chromium.org/developers/calendar
-# E.G. Branch 4044 represents Chromium/CEF 81.x
+# E.G. Branch 4472 represents Chromium/CEF 91.x
 cef_branch_number=$1
 
 # The second command line parameter is the commit hash in the branch we want to
@@ -27,7 +27,7 @@ cef_branch_number=$1
 # https://bitbucket.org/chromiumembedded/cef/commits/branch/3987 and pick the
 # commit hash the looks sensible - often something like "bumped CEF/Chromium
 # to version x.xx.xx"
-# E.G. for branch number 4044, b223419 is a valid commit hash
+# E.G. branch 4472, commit 9dd45fe defines CEF version 91.0.4472.114
 cef_commit_hash=$2
 
 # The third command line parameter is the directory you want to use to build

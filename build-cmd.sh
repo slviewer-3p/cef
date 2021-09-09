@@ -32,16 +32,16 @@ cef_stage_dir="${stage}/cef"
 # can make it difficult to find the branch number to use. This page can help:
 # https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding.md#markdown-header-release-branches
 # as can this one: https://www.chromium.org/developers/calendar
-# E.G. Branch 4044 represents Chromium/CEF 81.x, 4389 is Chromium 89.x
-cef_branch_number=${CEF_BRANCH:-4389}
+# E.G. Branch 4472 represents Chromium/CEF 91.x
+cef_branch_number=${CEF_BRANCH:-4472}
 
 # The commit hash in the branch we want to
 # check out from. One way to determine the hash to use is to look at the commits
 # for the branch you are building - for example:
-# https://bitbucket.org/chromiumembedded/cef/commits/branch/3987 and pick the
-# commit hash the looks sensible - often something like "bumped CEF/Chromium
-# to version x.xx.xx"
-cef_commit_hash=e528bdb
+# https://bitbucket.org/chromiumembedded/cef/commits/branch/4472 and pick the
+# commit hash the looks sensible - often something like "Update to Chromium
+# version xx.x.xxxx.xx" - this hash represents verion 91.0.4472.114
+cef_commit_hash=9dd45fe
 
 # Turn on the proprietary codec support (the main reason for building from source vs using
 # the Spotify open source builds here http://opensource.spotify.com/cefbuilds/index.html)
